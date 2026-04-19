@@ -1,0 +1,25 @@
+:root {
+  /* Warm Sunset Theme Colors */
+  --color-primary: #FF9E6B;
+  --color-secondary: #FFD194;
+  --color-accent: #FF9E6B;
+
+  /* Neutral Colors */
+  --color-bg: #FFF8F3;
+  --color-text: #2E2E2E;
+  --color-muted: #6B6B6B;
+
+  @theme inline {
+    --color-primary: var(--color-primary);
+    --color-secondary: var(--color-secondary);
+    --color-accent: var(--color-accent);
+    --color-bg: var(--color-bg);
+    --color-text: var(--color-text);
+    --color-muted: var(--color-muted);
+    --color-border: var(--color-border);
+
+    /* Fonts */
+    --font-display: var(--font-display);
+    --font-sans: var(--font-sans);
+  }
+}
