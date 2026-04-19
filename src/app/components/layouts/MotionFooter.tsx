@@ -115,7 +115,7 @@ export default function MotionFooter() {
             Dukung Bisnis Lokal
           </h2>
           <p className="text-white/80 text-sm md:text-base font-medium">
-            &copy; 2025 UMKM Kita. Semua hak cipta dilindungi.
+            &copy; 2026 Lokalin. Semua hak cipta dilindungi.
           </p>
         </div>
       </div>

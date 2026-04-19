@@ -8,13 +8,13 @@ import { AuthProvider } from "./providers/AuthProvider";
 import { LayoutRouteGuard } from "./components/layouts/LayoutRouteGuard";
 
 export const metadata: Metadata = {
-  title: "UMKM Kita - Platform Bisnis Lokal",
+  title: "Lokalin - Platform Bisnis Lokal",
   description:
     "Temukan dan dukung UMKM di sekitar Anda. Dari warung kopi legendaris hingga usaha kreatif, semua ada di satu tempat.",
   keywords: "UMKM, bisnis lokal, warung, kedai, usaha kecil, Indonesia",
-  authors: [{ name: "UMKM Kita" }],
+  authors: [{ name: "Lokalin" }],
   openGraph: {
-    title: "UMKM Kita - Platform Bisnis Lokal",
+    title: "Lokalin - Platform Bisnis Lokal",
     description: "Temukan dan dukung UMKM di sekitar Anda",
     type: "website",
   },

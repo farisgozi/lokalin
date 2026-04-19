@@ -166,7 +166,7 @@ export default function Navbar() {
                   >
                     <Image
                       src="https://syd.cloud.appwrite.io/v1/storage/buckets/hero-assets/files/6918c3850016d804b653/view?project=6861b5e20027ba386475&mode=admin"
-                      alt="UMKM Kita Logo"
+                      alt="Lokalin Logo"
                       fill
                       className="object-contain"
                       priority

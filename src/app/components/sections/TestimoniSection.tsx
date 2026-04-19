@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Star } from "lucide-react";
 import useGsapSection from "@/app/motion/hooks/useGsapSection";
- // pastikan path sesuai
+// pastikan path sesuai
 
 interface Testimonial {
   id: number;
@@ -81,7 +81,7 @@ export default function TestimoniSection() {
 
   // GSAP ScrollTrigger
   const sectionRef = useGsapSection({
-    desktopOnly:true,
+    desktopOnly: true,
     start: "top 80%",
     end: "20% top",
     scrub: 0.5,
@@ -115,7 +115,7 @@ export default function TestimoniSection() {
           </h2>
 
           <p className="text-lg md:text-xl text-[#6B6B6B] max-w-2xl mx-auto">
-            Dengarkan kisah nyata para pelaku UMKM yang berkembang bersama UMKM Kita.
+            Dengarkan kisah nyata para pelaku UMKM yang berkembang bersama Lokalin.
           </p>
         </div>
 
@@ -140,11 +140,10 @@ export default function TestimoniSection() {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-5 h-5 ${
-                          i < Math.floor(testimonials[currentIndex].rating)
+                        className={`w-5 h-5 ${i < Math.floor(testimonials[currentIndex].rating)
                             ? "fill-[#FF9E6B] text-[#FF9E6B]"
                             : "text-gray-300"
-                        }`}
+                          }`}
                       />
                     ))}
                     <span className="font-bold text-xl text-[#2E2E2E] ml-1">
@@ -175,9 +174,8 @@ export default function TestimoniSection() {
               <button
                 key={i}
                 onClick={() => setCurrentIndex(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  i === currentIndex ? "w-10 bg-[#FF885B]" : "w-3 bg-gray-300 hover:bg-gray-400"
-                }`}
+                className={`h-2 rounded-full transition-all duration-300 ${i === currentIndex ? "w-10 bg-[#FF885B]" : "w-3 bg-gray-300 hover:bg-gray-400"
+                  }`}
                 aria-label={`Testimonial ${i + 1}`}
               />
             ))}

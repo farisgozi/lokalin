@@ -14,6 +14,7 @@ import {
     Menu,
     X,
     ChevronRight,
+    Home,
 } from "lucide-react";
 
 interface NavItem {
@@ -47,6 +48,12 @@ const navItems: NavItem[] = [
         href: "/umkm/upload",
         icon: <Upload className="w-5 h-5" />,
         roles: ["user"],
+    },
+    {
+        label: "Ke Beranda",
+        href: "/",
+        icon: <Home className="w-5 h-5" />,
+        roles: ["owner", "admin", "user"],
     },
 ];
 
@@ -102,7 +109,7 @@ export default function DashboardLayout({ children, title, subtitle }: Dashboard
                                 U
                             </div>
                             <div>
-                                <h2 className="font-bold text-gray-900 text-sm">UMKM Kita</h2>
+                                <h2 className="font-bold text-gray-900 text-sm">Lokalin</h2>
                                 <p className="text-xs text-gray-400 capitalize">{role === "owner" ? "Owner Panel" : role === "admin" ? "Admin Panel" : "User Panel"}</p>
                             </div>
                         </div>
