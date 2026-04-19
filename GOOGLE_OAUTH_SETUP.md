@@ -1,47 +1,48 @@
-# Google OAuth Setup Guide
+# Panduan Setup Google OAuth
 
-## Step 1: Google Cloud Console
+## Langkah 1: Google Cloud Console
 
-1. Go to [console.cloud.google.com](https://console.cloud.google.com)
-2. Create or select a project
-3. Navigate to **APIs & Services** → **Credentials**
-4. Click **Create Credentials** → **OAuth client ID**
-5. Application type: **Web application**
+1. Buka https://console.cloud.google.com  
+2. Buat atau pilih project  
+3. Masuk ke **APIs & Services** → **Credentials**  
+4. Klik **Create Credentials** → **OAuth client ID**  
+5. Tipe aplikasi: **Web application**  
 6. Authorized redirect URIs:
-   ```
-   https://syd.cloud.appwrite.io/v1/account/sessions/oauth2/callback/google/6861b5e20027ba386475
-   ```
-   *(Replace with your Appwrite endpoint and project ID if different)*
-7. Copy the **Client ID** and **Client Secret**
+https://syd.cloud.appwrite.io/v1/account/sessions/oauth2/callback/google/6861b5e20027ba386475
+*(Ganti dengan endpoint Appwrite dan Project ID milikmu jika berbeda)*  
+7. Salin **Client ID** dan **Client Secret**
 
-## Step 2: Appwrite Console
+## Langkah 2: Appwrite Console
 
-1. Go to your Appwrite Console → Project → **Auth** → **Settings**
-2. Scroll to **OAuth Providers** → Find **Google**
-3. Toggle **Enable**
-4. Paste the **Client ID** and **Client Secret** from Step 1
-5. Save
+1. Buka Appwrite Console → Project → **Auth** → **Settings**  
+2. Scroll ke bagian **OAuth Providers** → cari **Google**  
+3. Aktifkan (**Enable**)  
+4. Tempelkan **Client ID** dan **Client Secret** dari Langkah 1  
+5. Simpan
 
-## Step 3: Verify
+## Langkah 3: Verifikasi
 
-1. Run `npm run dev`
-2. Go to `/register`, select a role, click "Daftar dengan Google"
-3. Complete Google sign-in
-4. You should be redirected to `/auth/callback` → then to `/onboarding` (for owners) or `/dashboard` (for users)
+1. Jalankan `npm run dev`  
+2. Buka `/register`, pilih role, lalu klik **"Daftar dengan Google"**  
+3. Selesaikan proses login Google  
+4. Kamu akan diarahkan ke `/auth/callback` → lalu ke:
+- `/onboarding` (untuk owner)  
+- `/dashboard` (untuk user)
 
 ## Troubleshooting
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| 401 | Google OAuth not enabled in Appwrite | Complete Step 2 |
-| redirect_uri_mismatch | Wrong redirect URI in Google Console | Update URI per Step 1.6 |
-| popup_closed | User closed Google popup | User must complete sign-in |
+| Error | Penyebab | Solusi |
+|------|--------|--------|
+| 401 | Google OAuth belum diaktifkan di Appwrite | Selesaikan Langkah 2 |
+| redirect_uri_mismatch | Redirect URI salah di Google Console | Perbaiki URI sesuai Langkah 1.6 |
+| popup_closed | User menutup popup Google | User harus menyelesaikan login |
 
-## How Role Selection Works
+## Cara Kerja Pemilihan Role
 
-When a user clicks "Daftar dengan Google" on the Register page:
-1. The selected role (user/owner) is saved to `localStorage` key `oauth-pending-role`
-2. Google OAuth popup opens via Appwrite
-3. After successful auth, `/auth/callback` reads the pending role
-4. Role is set as Appwrite user prefs
-5. For existing accounts (login), the role from prefs is used
+Saat user klik **"Daftar dengan Google"** di halaman Register:
+
+1. Role yang dipilih (user/owner) disimpan ke `localStorage` dengan key `oauth-pending-role`  
+2. Popup Google OAuth terbuka melalui Appwrite  
+3. Setelah autentikasi berhasil, `/auth/callback` membaca role yang tersimpan  
+4. Role disimpan sebagai **preferences user di Appwrite**  
+5. Jika akun sudah ada (login), maka role diambil dari preferences tersebut  
