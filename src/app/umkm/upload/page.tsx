@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AuthGate from "@/app/components/auth/AuthGate";
 import { useAuth } from "@/app/providers/AuthProvider";
-import { createSuggestion } from "@/lib/appwrite/database";
+import { createSuggestion, uploadUMKMImage } from "@/lib/appwrite/database";
 import {
     Store,
     MapPin,
@@ -17,6 +17,9 @@ import {
     Upload,
     Globe,
     Loader2,
+    Plus,
+    Trash2,
+    Image as ImageIcon,
 } from "lucide-react";
 
 const categories = ["Makanan", "Minuman", "Kedai Kopi", "Fashion", "Jasa", "Kerajinan", "Lainnya"];
@@ -29,7 +32,8 @@ export default function UploadUMKMPage() {
     const [description, setDescription] = useState("");
     const [phone, setPhone] = useState("");
     const [openHours, setOpenHours] = useState("");
-    const [imageUrl, setImageUrl] = useState("");
+    const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+    const [uploading, setUploading] = useState(false);
     const [socialMedia, setSocialMedia] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -41,7 +45,7 @@ export default function UploadUMKMPage() {
         setDescription("");
         setPhone("");
         setOpenHours("");
-        setImageUrl("");
+        setUploadedImages([]);
         setSocialMedia("");
     }
 
@@ -57,7 +61,7 @@ export default function UploadUMKMPage() {
                 address,
                 description,
                 phone,
-                images: imageUrl ? [imageUrl] : [],
+                images: uploadedImages,
                 submitted_by: user.id,
                 status: "PENDING",
                 submitted_at: new Date().toISOString(),
@@ -251,18 +255,92 @@ export default function UploadUMKMPage() {
                                         </FormField>
                                     </div>
 
-                                    {/* Image URL */}
-                                    <FormField
-                                        icon={<Upload className="w-5 h-5" />}
-                                        label="Link Gambar"
-                                    >
-                                        <input
-                                            value={imageUrl}
-                                            onChange={(e) => setImageUrl(e.target.value)}
-                                            className="form-input"
-                                            placeholder="https://example.com/foto-umkm.jpg"
-                                        />
-                                    </FormField>
+                                    {/* Image Upload */}
+                                    <div className="sm:col-span-2">
+                                        <FormField
+                                            icon={<ImageIcon className="w-5 h-5" />}
+                                            label="Foto UMKM"
+                                        >
+                                            <>
+                                                {uploadedImages.length > 0 && (
+                                                    <div className="grid grid-cols-3 gap-2 mb-3">
+                                                        {uploadedImages.map((url, i) => (
+                                                            <div key={i} className="relative group rounded-xl overflow-hidden border border-gray-200 aspect-video">
+                                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                                <img src={url} alt={`Upload ${i + 1}`} className="w-full h-full object-cover" />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setUploadedImages(uploadedImages.filter((_, idx) => idx !== i))}
+                                                                    className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                                                                >
+                                                                    <Trash2 className="w-3 h-3" />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                <label className="relative flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50/50 hover:bg-orange-50/50 hover:border-orange-300 transition-colors">
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        multiple
+                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                        disabled={uploading}
+                                                        onChange={async (e) => {
+                                                            const files = e.target.files;
+                                                            if (!files || files.length === 0) return;
+                                                            setUploading(true);
+                                                            try {
+                                                                const urls: string[] = [];
+                                                                for (let i = 0; i < files.length; i++) {
+                                                                    const file = files[i];
+                                                                    if (!file.type.startsWith("image/")) continue;
+                                                                    // Compress before upload
+                                                                    const compressed = await new Promise<File>((resolve, reject) => {
+                                                                        const img = new window.Image();
+                                                                        img.onload = () => {
+                                                                            const canvas = document.createElement("canvas");
+                                                                            let w = img.width, h = img.height;
+                                                                            if (w > 1920) { h = Math.round((h * 1920) / w); w = 1920; }
+                                                                            canvas.width = w; canvas.height = h;
+                                                                            const ctx = canvas.getContext("2d");
+                                                                            if (!ctx) return reject(new Error("no canvas"));
+                                                                            ctx.drawImage(img, 0, 0, w, h);
+                                                                            canvas.toBlob(b => b ? resolve(new File([b], file.name, { type: "image/jpeg" })) : reject(), "image/jpeg", 0.8);
+                                                                        };
+                                                                        img.onerror = () => reject();
+                                                                        img.src = URL.createObjectURL(file);
+                                                                    });
+                                                                    const url = await uploadUMKMImage(compressed);
+                                                                    urls.push(url);
+                                                                }
+                                                                setUploadedImages([...uploadedImages, ...urls]);
+                                                            } catch (err) {
+                                                                console.error("Upload failed:", err);
+                                                                alert("Gagal mengupload gambar.");
+                                                            } finally {
+                                                                setUploading(false);
+                                                                e.target.value = "";
+                                                            }
+                                                        }}
+                                                    />
+                                                    {uploading ? (
+                                                        <>
+                                                            <Loader2 className="w-7 h-7 text-orange-400 animate-spin mb-1" />
+                                                            <p className="text-sm text-orange-600 font-medium">Mengupload...</p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Plus className="w-7 h-7 text-gray-400 mb-1" />
+                                                            <p className="text-xs text-gray-500 font-medium">Klik atau drag foto ke sini</p>
+                                                            <p className="text-[10px] text-gray-400">PNG, JPG, WebP</p>
+                                                        </>
+                                                    )}
+                                                </label>
+                                            </>
+                                        </FormField>
+                                    </div>
 
                                     {/* Social Media */}
                                     <FormField
