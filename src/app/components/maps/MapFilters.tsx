@@ -31,8 +31,7 @@ export function MapFilters({
     { label: 'All', icon: <Store className="w-4 h-4" /> },
     { label: 'Makanan', icon: <UtensilsCrossed className="w-4 h-4" /> },
     { label: 'Minuman', icon: <GlassWater className="w-4 h-4" /> },
-    { label: 'Fashion', icon: <Shirt className="w-4 h-4" /> },
-    { label: 'Kedai Kopi', icon: <Coffee className="w-4 h-4" /> },
+    { label: 'Jasa', icon: <Shirt className="w-4 h-4" /> },
   ];
 
   const [open, setOpen] = useState(false);
@@ -63,11 +62,10 @@ export function MapFilters({
         <motion.button
           onClick={onToggleRadius}
           whileTap={{ scale: 0.95 }}
-          className={`flex items-center justify-center gap-2 rounded-full shadow-md border transition-colors px-3 py-2 text-xs sm:text-sm font-medium ${
-            filterRadius
+          className={`flex items-center justify-center gap-2 rounded-full shadow-md border transition-colors px-3 py-2 text-xs sm:text-sm font-medium ${filterRadius
               ? 'bg-orange-500 text-white border-orange-400 shadow-orange-300'
               : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
-          }`}
+            }`}
           title={
             userLocation
               ? filterRadius
@@ -77,9 +75,8 @@ export function MapFilters({
           }
         >
           <MapPin
-            className={`w-4 h-4 sm:w-5 sm:h-5 ${
-              filterRadius ? 'text-white' : 'text-orange-500'
-            }`}
+            className={`w-4 h-4 sm:w-5 sm:h-5 ${filterRadius ? 'text-white' : 'text-orange-500'
+              }`}
           />
           <span className="hidden sm:inline">
             {userLocation
@@ -113,9 +110,8 @@ export function MapFilters({
                   <button
                     key={f.label}
                     onClick={() => handleSelect(f)}
-                    className={`flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 transition-colors duration-200 ${
-                      activeCategory === f.label ? 'bg-orange-100 text-orange-600 font-semibold' : ''
-                    }`}
+                    className={`flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 transition-colors duration-200 ${activeCategory === f.label ? 'bg-orange-100 text-orange-600 font-semibold' : ''
+                      }`}
                   >
                     {f.icon}
                     {f.label}

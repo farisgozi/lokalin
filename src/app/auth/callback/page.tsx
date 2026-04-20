@@ -7,6 +7,7 @@ import {
     ensureOAuthPrefs,
 } from "@/lib/auth/auth-service";
 import { useAuth } from "@/app/providers/AuthProvider";
+import { getUMKMByOwnerId } from "@/lib/appwrite/database";
 
 function CallbackContent() {
     const router = useRouter();
@@ -35,29 +36,23 @@ function CallbackContent() {
 
                 // Route based on role and status
                 if (user.role === "owner") {
-                    const submissionKey = `umkm-owner-submission-${user.id}`;
-                    const existing = localStorage.getItem(submissionKey);
-                    if (!existing) {
-                        router.replace("/onboarding");
-                        return;
-                    }
-
                     try {
-                        const globalRaw = localStorage.getItem("umkm-owner-submissions");
-                        const globalList = globalRaw ? JSON.parse(globalRaw) : [];
-                        const fromGlobal = globalList.find(
-                            (s: { ownerId: string }) => s.ownerId === user.id
-                        );
-                        const status =
-                            fromGlobal?.status || JSON.parse(existing).status;
-                        if (status === "pending" || status === "rejected") {
-                            router.replace("/");
+                        const existing = await getUMKMByOwnerId(user.id);
+                        if (existing) {
+                            // Owner already has UMKM — skip onboarding
+                            if (existing.status === "APPROVED") {
+                                router.replace("/dashboard/owner");
+                            } else {
+                                // PENDING or REJECTED — go to home (banner will show)
+                                router.replace("/");
+                            }
                             return;
                         }
                     } catch {
-                        // parse error — continue to dashboard
+                        // DB check failed — fallback to onboarding
                     }
-                    router.replace("/dashboard/owner");
+                    // No UMKM found — first time owner
+                    router.replace("/onboarding");
                     return;
                 }
 

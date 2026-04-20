@@ -80,6 +80,25 @@ export default function MapComponent() {
       .filter(d => !filterRadius || !userLocation || getDistanceKm(userLocation.lat, userLocation.lng, d.lat, d.lng) <= 5);
   }, [umkmList, activeCategory, searchQuery, filterRadius, userLocation]);
 
+  // Auto-pan map to search results
+  const prevSearchRef = useRef('');
+  useEffect(() => {
+    if (!searchQuery.trim() || searchQuery === prevSearchRef.current) return;
+    prevSearchRef.current = searchQuery;
+
+    if (filteredData.length === 0 || !mapRef.current) return;
+
+    if (filteredData.length === 1) {
+      // Single result — fly directly to it
+      mapRef.current.flyTo([filteredData[0].lat, filteredData[0].lng], 16, { duration: 1.2 });
+      setActiveUMKM(filteredData[0]);
+    } else {
+      // Multiple results — fit bounds to show all
+      const bounds = L.latLngBounds(filteredData.map(d => [d.lat, d.lng] as [number, number]));
+      mapRef.current.flyToBounds(bounds, { padding: [50, 50], duration: 1.2, maxZoom: 15 });
+    }
+  }, [searchQuery, filteredData]);
+
   const handleLocateUser = useCallback(() => {
     if (!navigator.geolocation) return alert('Browser tidak mendukung geolocation');
     navigator.geolocation.getCurrentPosition(
@@ -193,7 +212,7 @@ export default function MapComponent() {
         userLocation={userLocation}
         onToggleRadius={() => (userLocation ? setFilterRadius(p => !p) : handleLocateUser())}
       />
-      <MapStyleSelector setMapStyle={setMapStyle} />
+      {/* <MapStyleSelector setMapStyle={setMapStyle} /> */}
       <MapControls onLocate={handleLocateUser} />
 
       {/* Bottom Popup Card */}

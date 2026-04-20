@@ -22,6 +22,8 @@ export default function Navbar() {
   const { user, isReady, logout } = useAuth();
   const isHomePage = pathname === '/' || pathname === '/#beranda';
   const isDetailPage = pathname?.startsWith('/umkm/') && pathname !== '/umkm';
+  const isOnboardingPage = pathname === '/onboarding';
+  const isBackPage = isDetailPage || isOnboardingPage;
   const isDashboardPage = pathname?.startsWith('/dashboard');
   const [allUMKM, setAllUMKM] = useState<UMKMType[]>([...umkmDummy]);
 
@@ -58,7 +60,7 @@ export default function Navbar() {
     )
     : [];
 
-  const popularSearches = ["Kedai Kopi", "Makanan", "Fashion", "Minuman"];
+  const popularSearches = ["Minuman", "Makanan", "Jasa"];
 
   // Scroll listener via Lenis
   useEffect(() => {
@@ -131,7 +133,7 @@ export default function Navbar() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
             <AnimatePresence mode="wait">
-              {isDetailPage ? (
+              {isBackPage ? (
                 <motion.button
                   key="back-button"
                   initial={{ opacity: 0, x: -20 }}
@@ -220,7 +222,7 @@ export default function Navbar() {
             {/* Action Buttons */}
             <div className="flex items-center gap-3">
               <AnimatePresence>
-                {!isDetailPage && !isDashboardPage && (
+                {!isBackPage && !isDashboardPage && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -302,7 +304,7 @@ export default function Navbar() {
 
               {/* Mobile Menu Button */}
               <AnimatePresence>
-                {!isDetailPage && !isDashboardPage && (
+                {!isBackPage && !isDashboardPage && (
                   <motion.button
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -585,6 +587,7 @@ export default function Navbar() {
 function OwnerStatusBanner() {
   const { user, isReady } = useAuth();
   const [status, setStatus] = useState<{ name: string; status: string; rejectReason?: string } | null>(null);
+  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     if (!isReady || user?.role !== "owner") return;
@@ -595,13 +598,21 @@ function OwnerStatusBanner() {
     }).catch(() => { });
   }, [isReady, user]);
 
-  if (!status) return null;
+  // Auto-dismiss after 5 seconds
+  useEffect(() => {
+    if (!status) return;
+    const timer = setTimeout(() => setDismissed(true), 5000);
+    return () => clearTimeout(timer);
+  }, [status]);
+
+  if (!status || dismissed) return null;
 
   if (status.status === "PENDING") {
     return (
       <motion.div
         initial={{ y: -40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -40, opacity: 0 }}
         className="fixed top-16 md:top-20 left-0 right-0 z-40 bg-amber-50 border-b border-amber-200 px-4 py-2.5"
       >
         <div className="max-w-6xl mx-auto flex items-center justify-center gap-2 text-sm">
@@ -609,6 +620,9 @@ function OwnerStatusBanner() {
           <p className="text-amber-800 font-medium text-center">
             Usaha &ldquo;{status.name}&rdquo; sedang dalam proses review oleh Admin
           </p>
+          <button onClick={() => setDismissed(true)} className="ml-2 text-amber-500 hover:text-amber-700 transition-colors">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       </motion.div>
     );
@@ -619,6 +633,7 @@ function OwnerStatusBanner() {
       <motion.div
         initial={{ y: -40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -40, opacity: 0 }}
         className="fixed top-16 md:top-20 left-0 right-0 z-40 bg-red-50 border-b border-red-200 px-4 py-2.5"
       >
         <div className="max-w-6xl mx-auto flex items-center justify-center gap-2 text-sm">
@@ -629,6 +644,9 @@ function OwnerStatusBanner() {
               Edit & kirim ulang
             </Link>
           </p>
+          <button onClick={() => setDismissed(true)} className="ml-2 text-red-500 hover:text-red-700 transition-colors">
+            <X className="w-4 h-4" />
+          </button>
         </div>
       </motion.div>
     );

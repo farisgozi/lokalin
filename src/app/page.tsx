@@ -7,17 +7,19 @@ import TestimoniSection from "./components/sections/TestimoniSection";
 import AboutSection from "./components/sections/AboutSection";
 import MapsSection from "./components/sections/MapsSection";
 import ExploreWrapper from "./components/layouts/ExploreWrapper";
+import LatestUMKMSection from "./components/sections/LatestUMKMSection";
 
 export default function Home() {
   return (
     <div className="relative overflow-hidden">
       <HeroSection />
       <CategorySection />
-      <ExploreWrapper/>
+      <LatestUMKMSection />
+      <ExploreWrapper />
       <MapsSection />
       <CeritaSection />
-      <TestimoniSection  />
-      <AboutSection/>
+      <TestimoniSection />
+      <AboutSection />
     </div>
   );
 }

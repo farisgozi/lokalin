@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
 import useGsapSection from '@/app/motion/hooks/useGsapSection';
+import { umkmDummy } from '@/app/data/umkmDummy';
 
 interface Category {
   id: number;
@@ -10,14 +12,34 @@ interface Category {
   illustration: string;
 }
 
-interface FoodItem {
-  id: number;
-  name: string;
-  preview: string;
-}
-
 const CategorySection = () => {
   const [activeCategory, setActiveCategory] = useState(1);
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  // Build shuffled hero slides from UMKM gallery images
+  const heroSlides = useMemo(() => {
+    const slides: { name: string; image: string }[] = [];
+    umkmDummy.forEach(u => {
+      if (u.gallery && u.gallery.length > 0) {
+        slides.push({ name: u.name, image: u.gallery[0] });
+      }
+    });
+    // Shuffle
+    for (let i = slides.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [slides[i], slides[j]] = [slides[j], slides[i]];
+    }
+    return slides.slice(0, 6); // max 6 slides
+  }, []);
+
+  // Auto-slide hero every 12 seconds
+  useEffect(() => {
+    if (heroSlides.length <= 1) return;
+    const timer = setInterval(() => {
+      setHeroIndex(prev => (prev + 1) % heroSlides.length);
+    }, 15000);
+    return () => clearInterval(timer);
+  }, [heroSlides.length]);
 
   const categories: Category[] = [
     { id: 1, name: 'Minuman', illustration: 'https://syd.cloud.appwrite.io/v1/storage/buckets/illustrations/files/6918c42600075972b81a/view?project=6861b5e20027ba386475&mode=admin' },
@@ -25,11 +47,23 @@ const CategorySection = () => {
     { id: 3, name: 'Jasa', illustration: 'https://syd.cloud.appwrite.io/v1/storage/buckets/illustrations/files/6918c45d0014cbd719ae/view?project=6861b5e20027ba386475&mode=admin' },
   ];
 
-  const foodItems: FoodItem[] = [
-    { id: 1, name: 'Sate Bakar', preview: 'https://syd.cloud.appwrite.io/v1/storage/buckets/illustrations/files/6918c4450018dfdc8210/view?project=6861b5e20027ba386475&mode=admin' },
-    { id: 2, name: 'Es Cendol', preview: 'https://syd.cloud.appwrite.io/v1/storage/buckets/illustrations/files/6918c430003b2b71d0eb/view?project=6861b5e20027ba386475&mode=admin' },
-    { id: 3, name: 'Lumpia Goreng', preview: 'https://syd.cloud.appwrite.io/v1/storage/buckets/illustrations/files/6918c43a0036cda8d1e1/view?project=6861b5e20027ba386475&mode=admin' },
-  ];
+  // Category name mapping for broader matching
+  const categoryMatchMap: Record<string, string[]> = {
+    'Minuman': ['Minuman', 'Kedai Kopi'],
+    'Makanan': ['Makanan'],
+    'Jasa': ['Jasa', 'Kerajinan', 'Fashion'],
+  };
+
+  // Dynamically filter UMKM from umkmDummy based on active category
+  const currentFoodItems = useMemo(() => {
+    const catName = categories[activeCategory]?.name || 'Makanan';
+    const matchCategories = categoryMatchMap[catName] || [catName];
+    return umkmDummy
+      .filter(u => matchCategories.includes(u.category) && u.gallery && u.gallery.length > 0)
+      .slice(0, 3)
+      .map((u, i) => ({ id: i + 1, name: u.name, preview: u.gallery![0] }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCategory]);
 
   const getPrevIndex = useCallback(() => (activeCategory - 1 + categories.length) % categories.length, [activeCategory, categories.length]);
   const getNextIndex = useCallback(() => (activeCategory + 1) % categories.length, [activeCategory, categories.length]);
@@ -41,7 +75,6 @@ const CategorySection = () => {
     end: "20% top",
     scrub: true,
     timeline: (tl: gsap.core.Timeline) => {
-      // Animasi judul dan carousel
       tl.from(".category-title", { opacity: 0, y: 40, duration: 0.7 })
         .from(".category-carousel", { opacity: 0, y: 30, duration: 0.7 }, "<0.2")
         .from(".food-grid", { opacity: 0, y: 20, duration: 0.7 }, "<0.2")
@@ -122,35 +155,59 @@ const CategorySection = () => {
                 <div className="flex justify-center gap-2 mt-6 lg:mt-8">
                   {categories.map((category, index) => (
                     <button key={category.id} onClick={() => setActiveCategory(index)}
-                      className={`transition-all duration-300 rounded-full transform hover:scale-125 active:scale-90 ${
-                        index === activeCategory ? 'w-8 h-3 bg-[#FF885B]' : 'w-3 h-3 bg-gray-400 hover:bg-gray-500'
-                      }`}
+                      className={`transition-all duration-300 rounded-full transform hover:scale-125 active:scale-90 ${index === activeCategory ? 'w-8 h-3 bg-[#FF885B]' : 'w-3 h-3 bg-gray-400 hover:bg-gray-500'
+                        }`}
                       aria-label={`Go to ${category.name}`} />
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Food Grid */}
+            {/* Food Grid — dynamic per category */}
             <div className="food-grid relative grid grid-cols-3 gap-3 md:gap-4 mt-6 lg:mt-8">
-              {foodItems.map((item) => (
-                <div key={item.id} className="relative aspect-square rounded-2xl lg:rounded-3xl overflow-hidden shadow-lg cursor-pointer group transition-all duration-500 hover:scale-[1.03] hover:-translate-y-10">
-                  <Image src={item.preview} alt={item.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
-                </div>
-              ))}
+              <AnimatePresence mode="wait">
+                {currentFoodItems.map((item) => (
+                  <motion.div
+                    key={`${activeCategory}-${item.id}`}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                    className="relative aspect-square rounded-2xl lg:rounded-3xl overflow-hidden shadow-lg cursor-pointer group transition-all duration-500 hover:scale-[1.03] hover:-translate-y-10"
+                  >
+                    <Image src={item.preview} alt={item.name} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
+                    <p className="absolute bottom-2 left-3 text-white text-xs font-semibold drop-shadow-lg">{item.name}</p>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           </div>
 
-          {/* Right Side Hero */}
+          {/* Right Side Hero — auto-slide random UMKM */}
           <div className="category-right relative h-[500px] md:h-[600px] lg:h-[800px] rounded-3xl lg:rounded-[40px] overflow-hidden shadow-2xl group">
-            <div className="relative w-full h-full transition duration-700 transform hover:scale-[1.02]">
-              <Image src="https://syd.cloud.appwrite.io/v1/storage/buckets/illustrations/files/6918c4450018dfdc8210/view?project=6861b5e20027ba386475&mode=admin" alt="UMKM Showcase - Sate Bakar" fill className="object-cover group-hover:scale-105 transition-transform duration-700" priority />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
-            </div>
-            <div className="absolute bottom-6 left-6 text-white">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={heroIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
+                className="relative w-full h-full"
+              >
+                <Image src={heroSlides[heroIndex].image} alt={heroSlides[heroIndex].name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" priority />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+              </motion.div>
+            </AnimatePresence>
+            <div className="absolute bottom-6 left-6 text-white z-10">
               <p className="text-xs md:text-sm font-semibold mb-1 opacity-90">Featured</p>
-              <h3 className="text-2xl sm:text-3xl font-bold drop-shadow-lg">Sate Bakar Khas Nusantara</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold drop-shadow-lg">{heroSlides[heroIndex].name}</h3>
+            </div>
+            {/* Slide indicators */}
+            <div className="absolute bottom-6 right-6 flex gap-1.5 z-10">
+              {heroSlides.map((_: { name: string; image: string }, i: number) => (
+                <div key={i} className={`w-2 h-2 rounded-full transition-all duration-300 ${i === heroIndex ? 'bg-white w-5' : 'bg-white/40'}`} />
+              ))}
             </div>
           </div>
 

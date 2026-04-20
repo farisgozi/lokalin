@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
-const HIDDEN_ROUTES = ["/dashboard", "/onboarding", "/auth/callback"];
+const HIDDEN_ROUTES = ["/dashboard", "/auth/callback"];
 
 export function LayoutRouteGuard({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();

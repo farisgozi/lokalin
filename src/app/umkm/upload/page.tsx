@@ -22,7 +22,7 @@ import {
     Image as ImageIcon,
 } from "lucide-react";
 
-const categories = ["Makanan", "Minuman", "Kedai Kopi", "Fashion", "Jasa", "Kerajinan", "Lainnya"];
+const categories = ["Makanan", "Minuman", "Jasa"];
 
 export default function UploadUMKMPage() {
     const { user } = useAuth();
@@ -31,7 +31,8 @@ export default function UploadUMKMPage() {
     const [address, setAddress] = useState("");
     const [description, setDescription] = useState("");
     const [phone, setPhone] = useState("");
-    const [openHours, setOpenHours] = useState("");
+    const [openTime, setOpenTime] = useState("08:00");
+    const [closeTime, setCloseTime] = useState("22:00");
     const [uploadedImages, setUploadedImages] = useState<string[]>([]);
     const [uploading, setUploading] = useState(false);
     const [socialMedia, setSocialMedia] = useState("");
@@ -44,7 +45,8 @@ export default function UploadUMKMPage() {
         setAddress("");
         setDescription("");
         setPhone("");
-        setOpenHours("");
+        setOpenTime("08:00");
+        setCloseTime("22:00");
         setUploadedImages([]);
         setSocialMedia("");
     }
@@ -60,7 +62,7 @@ export default function UploadUMKMPage() {
                 category,
                 address,
                 description,
-                phone,
+                phone: phone ? `+62${phone}` : '',
                 images: uploadedImages,
                 submitted_by: user.id,
                 status: "PENDING",
@@ -233,12 +235,16 @@ export default function UploadUMKMPage() {
                                             icon={<Phone className="w-5 h-5" />}
                                             label="No. Telepon"
                                         >
-                                            <input
-                                                value={phone}
-                                                onChange={(e) => setPhone(e.target.value)}
-                                                className="form-input"
-                                                placeholder="+62 812-xxxx-xxxx"
-                                            />
+                                            <div className="flex">
+                                                <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-sm text-gray-600 font-medium">+62</span>
+                                                <input
+                                                    value={phone}
+                                                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                                                    className="form-input !rounded-l-none"
+                                                    placeholder="81219769477"
+                                                    inputMode="numeric"
+                                                />
+                                            </div>
                                         </FormField>
 
                                         {/* Jam Buka */}
@@ -246,12 +252,21 @@ export default function UploadUMKMPage() {
                                             icon={<Clock className="w-5 h-5" />}
                                             label="Jam Operasional"
                                         >
-                                            <input
-                                                value={openHours}
-                                                onChange={(e) => setOpenHours(e.target.value)}
-                                                className="form-input"
-                                                placeholder="08:00 - 22:00"
-                                            />
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="time"
+                                                    value={openTime}
+                                                    onChange={(e) => setOpenTime(e.target.value)}
+                                                    className="form-input flex-1"
+                                                />
+                                                <span className="text-gray-400 text-sm font-medium">—</span>
+                                                <input
+                                                    type="time"
+                                                    value={closeTime}
+                                                    onChange={(e) => setCloseTime(e.target.value)}
+                                                    className="form-input flex-1"
+                                                />
+                                            </div>
                                         </FormField>
                                     </div>
 

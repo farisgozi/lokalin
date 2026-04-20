@@ -41,11 +41,7 @@ const OWNER_SUBMISSIONS_KEY = "umkm-owner-submissions";
 const categories = [
     "Makanan",
     "Minuman",
-    "Kedai Kopi",
-    "Fashion",
     "Jasa",
-    "Kerajinan",
-    "Lainnya",
 ];
 
 export default function OnboardingPage() {
@@ -57,7 +53,8 @@ export default function OnboardingPage() {
     const [address, setAddress] = useState("");
     const [description, setDescription] = useState("");
     const [phone, setPhone] = useState("");
-    const [openHours, setOpenHours] = useState("");
+    const [openTime, setOpenTime] = useState("08:00");
+    const [closeTime, setCloseTime] = useState("22:00");
     const [socialMedia, setSocialMedia] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,14 +71,14 @@ export default function OnboardingPage() {
                 category,
                 address,
                 description,
-                phone,
+                phone: phone ? `+62${phone}` : '',
                 images: [],
                 status: "PENDING",
                 owner_id: user.id,
                 owner_name: user.name,
                 owner_email: user.email,
                 submitted_at: new Date().toISOString(),
-                open_hours: openHours,
+                open_hours: `${openTime} - ${closeTime}`,
                 social_media: socialMedia,
             });
 
@@ -96,7 +93,7 @@ export default function OnboardingPage() {
 
     if (submitted) {
         return (
-            <section className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-orange-50 via-white to-pink-50">
+            <section className="min-h-screen flex items-center justify-center px-4 pt-24 pb-12 bg-gradient-to-br from-orange-50 via-white to-pink-50">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -139,7 +136,7 @@ export default function OnboardingPage() {
     }
 
     return (
-        <section className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-orange-50 via-white to-pink-50 relative overflow-hidden">
+        <section className="min-h-screen flex items-center justify-center px-4 pt-24 pb-12 bg-gradient-to-br from-orange-50 via-white to-pink-50 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-96 h-96 bg-orange-200/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
             <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-pink-200/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
 
@@ -226,21 +223,34 @@ export default function OnboardingPage() {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <FormField icon={<Phone className="w-5 h-5" />} label="No. Telepon">
-                                <input
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 bg-gray-50/50 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 text-sm"
-                                    placeholder="+62 812-xxxx-xxxx"
-                                />
+                                <div className="flex">
+                                    <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-200 bg-gray-100 text-sm text-gray-600 font-medium">+62</span>
+                                    <input
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                                        className="w-full rounded-r-xl border border-gray-200 px-4 py-3 bg-gray-50/50 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 text-sm"
+                                        placeholder="81219769477"
+                                        inputMode="numeric"
+                                    />
+                                </div>
                             </FormField>
 
                             <FormField icon={<Clock className="w-5 h-5" />} label="Jam Operasional">
-                                <input
-                                    value={openHours}
-                                    onChange={(e) => setOpenHours(e.target.value)}
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 bg-gray-50/50 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 text-sm"
-                                    placeholder="08:00 - 22:00"
-                                />
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="time"
+                                        value={openTime}
+                                        onChange={(e) => setOpenTime(e.target.value)}
+                                        className="flex-1 rounded-xl border border-gray-200 px-3 py-3 bg-gray-50/50 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 text-sm"
+                                    />
+                                    <span className="text-gray-400 text-sm font-medium">—</span>
+                                    <input
+                                        type="time"
+                                        value={closeTime}
+                                        onChange={(e) => setCloseTime(e.target.value)}
+                                        className="flex-1 rounded-xl border border-gray-200 px-3 py-3 bg-gray-50/50 outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 text-sm"
+                                    />
+                                </div>
                             </FormField>
                         </div>
 

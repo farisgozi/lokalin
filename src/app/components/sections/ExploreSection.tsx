@@ -6,7 +6,6 @@ import Image from 'next/image';
 import useGsapSection from '@/app/motion/hooks/useGsapSection';
 import Link from 'next/link';
 import { umkmDummy, getAverageRating } from '@/app/data/umkmDummy';
-import { getApprovedUMKMs, type UMKMDocument } from '@/lib/appwrite/database';
 
 interface Review {
   name: string;
@@ -95,16 +94,7 @@ const generateExploreItems = (): ExploreItem[] => {
 
 const exploreItems: ExploreItem[] = generateExploreItems();
 
-// Category color map
-const categoryColors: Record<string, string> = {
-  'Makanan': 'from-orange-400 to-red-400',
-  'Minuman': 'from-blue-400 to-cyan-400',
-  'Kedai Kopi': 'from-amber-600 to-yellow-500',
-  'Fashion': 'from-pink-400 to-purple-400',
-  'Jasa': 'from-emerald-400 to-teal-400',
-  'Kerajinan': 'from-indigo-400 to-violet-400',
-  'Lainnya': 'from-gray-400 to-slate-400',
-};
+
 
 export default function ExploreSection({
   searchQuery,
@@ -113,14 +103,9 @@ export default function ExploreSection({
 }: ExploreSectionProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
-  const [dynamicUMKMs, setDynamicUMKMs] = useState<UMKMDocument[]>([]);
 
-  // Load approved dynamic UMKM from Appwrite
-  useEffect(() => {
-    getApprovedUMKMs().then((approved) => {
-      setDynamicUMKMs(approved);
-    }).catch(() => { });
-  }, []);
+
+
 
   useEffect(() => {
     const isDesktop = window.innerWidth >= 768;
@@ -303,64 +288,6 @@ export default function ExploreSection({
           </div>
         )}
 
-        {/* Dynamic UMKM Grid — approved UMKM from database */}
-        {!isSearching && dynamicUMKMs.length > 0 && (
-          <div className="mt-16">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">UMKM Terbaru</h2>
-                <p className="text-gray-500 text-sm mt-1">UMKM baru yang telah diverifikasi oleh admin</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {dynamicUMKMs.map((umkm) => {
-                const thumbnail = umkm.images && umkm.images.length > 0 ? umkm.images[0] : defaultImage;
-                const colorGradient = categoryColors[umkm.category] || categoryColors['Lainnya'];
-
-                return (
-                  <Link
-                    key={umkm.$id}
-                    href={`/umkm/${umkm.$id}`}
-                    className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
-                  >
-                    {/* Thumbnail */}
-                    <div className="relative h-48 overflow-hidden">
-                      <Image
-                        src={thumbnail}
-                        alt={umkm.name}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-                      <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${colorGradient} shadow-md`}>
-                        {umkm.category}
-                      </span>
-                    </div>
-
-                    {/* Info */}
-                    <div className="p-5">
-                      <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">
-                        {umkm.name}
-                      </h3>
-                      <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-3">
-                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span className="truncate">{umkm.address}</span>
-                      </div>
-                      {umkm.description && (
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-4">{umkm.description}</p>
-                      )}
-                      <div className="flex items-center gap-1.5 text-orange-500 font-semibold text-sm">
-                        Lihat Detail
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
 
       </div>
     </section>

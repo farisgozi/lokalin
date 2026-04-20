@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import useGsapSection from "@/app/motion/hooks/useGsapSection";
 
@@ -14,6 +14,7 @@ interface Story {
 
 export default function CeritaSection() {
   const [currentStory, setCurrentStory] = useState(0);
+  const touchStartX = useRef(0);
 
   const stories: Story[] = [
     {
@@ -50,6 +51,21 @@ export default function CeritaSection() {
     return () => clearInterval(interval);
   }, [stories.length]);
 
+  // Touch swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        setCurrentStory((prev) => (prev + 1) % stories.length);
+      } else {
+        setCurrentStory((prev) => (prev - 1 + stories.length) % stories.length);
+      }
+    }
+  };
+
   // Hook GSAP untuk section
   const sectionRef = useGsapSection({
     desktopOnly: true,
@@ -64,20 +80,20 @@ export default function CeritaSection() {
         duration: 0.8,
         ease: "power2.out",
       })
-      .from(".cerita-subline div", {
-        scaleX: 0,
-        transformOrigin: "left",
-        stagger: 0.1,
-        duration: 0.7,
-        ease: "power2.out",
-      }, "-=0.6")
-      .from(".story-card", {
-        y: 40,
-        opacity: 0,
-        stagger: 0.2,
-        duration: 0.8,
-        ease: "power2.out",
-      }, "-=0.5");
+        .from(".cerita-subline div", {
+          scaleX: 0,
+          transformOrigin: "left",
+          stagger: 0.1,
+          duration: 0.7,
+          ease: "power2.out",
+        }, "-=0.6")
+        .from(".story-card", {
+          y: 40,
+          opacity: 0,
+          stagger: 0.2,
+          duration: 0.8,
+          ease: "power2.out",
+        }, "-=0.5");
     },
   });
 
@@ -110,9 +126,8 @@ export default function CeritaSection() {
                 (text, i) => (
                   <h2
                     key={i}
-                    className={`text-5xl md:text-6xl lg:text-7xl font-bold leading-tight ${
-                      i === 1 ? "text-[#FF885B]" : "text-[#2E2E2E]"
-                    }`}
+                    className={`text-5xl md:text-6xl lg:text-7xl font-bold leading-tight ${i === 1 ? "text-[#FF885B]" : "text-[#2E2E2E]"
+                      }`}
                   >
                     {text}
                   </h2>
@@ -127,8 +142,12 @@ export default function CeritaSection() {
               <div className="w-10 h-1.5 bg-[#FF885B] rounded-full origin-left" />
             </div>
 
-            {/* Story Card */}
-            <div className="story-card relative bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-md">
+            {/* Story Card — swipeable on mobile */}
+            <div
+              className="story-card relative bg-white rounded-3xl p-6 md:p-8 border border-gray-100 shadow-md touch-pan-y"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
               <div className="flex items-start gap-4 mb-4">
                 <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-[#FF885B] scale-100 rotate-3">
                   <Image
@@ -153,18 +172,17 @@ export default function CeritaSection() {
               </p>
 
             </div>
-              {/* Indicator */}
-              <div className="flex justify-center gap-2 mt-6">
-                {stories.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentStory(i)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      i === currentStory ? "w-10 bg-[#FF885B]" : "w-3 bg-gray-300"
+            {/* Indicator */}
+            <div className="flex justify-center gap-2 mt-6">
+              {stories.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentStory(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${i === currentStory ? "w-10 bg-[#FF885B]" : "w-3 bg-gray-300"
                     }`}
-                  />
-                ))}
-              </div>
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>

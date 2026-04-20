@@ -11,7 +11,6 @@ interface MapStyleSelectorProps {
 export function MapStyleSelector({ setMapStyle }: MapStyleSelectorProps) {
   const styles = [
     { name: 'Default', url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png' },
-    { name: 'Minimal', url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png' },
   ];
 
   const [open, setOpen] = useState(false);
@@ -46,9 +45,8 @@ export function MapStyleSelector({ setMapStyle }: MapStyleSelectorProps) {
               <button
                 key={s.name}
                 onClick={() => handleSelect(s)}
-                className={`flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 transition-colors duration-200 ${
-                  selected === s.name ? 'font-semibold bg-orange-100 text-orange-600' : ''
-                }`}
+                className={`flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 transition-colors duration-200 ${selected === s.name ? 'font-semibold bg-orange-100 text-orange-600' : ''
+                  }`}
               >
                 {s.name}
                 {selected === s.name && <Check className="w-4 h-4 text-orange-600" />}

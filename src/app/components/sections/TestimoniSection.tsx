@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Star } from "lucide-react";
 import useGsapSection from "@/app/motion/hooks/useGsapSection";
-// pastikan path sesuai
 
 interface Testimonial {
   id: number;
@@ -68,6 +67,7 @@ const testimonials: Testimonial[] = [
 
 export default function TestimoniSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const touchStartX = useRef(0);
 
   // Auto-play desktop/tablet
   useEffect(() => {
@@ -75,9 +75,24 @@ export default function TestimoniSection() {
     if (!isDesktop) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 6000); // 6 detik per testimonial
+    }, 6000);
     return () => clearInterval(interval);
   }, []);
+
+  // Touch swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+      } else {
+        setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+      }
+    }
+  };
 
   // GSAP ScrollTrigger
   const sectionRef = useGsapSection({
@@ -119,8 +134,12 @@ export default function TestimoniSection() {
           </p>
         </div>
 
-        {/* Testimonial Card */}
-        <div className="relative mx-auto testimonial-card">
+        {/* Testimonial Card — swipeable on mobile */}
+        <div
+          className="relative mx-auto testimonial-card touch-pan-y"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           <div className="min-h-[400px] md:min-h-[320px] flex items-center w-full">
             <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-2xl border border-[#FFD194]/50 transition-transform duration-500 hover:-translate-y-2">
               <div className="flex flex-col md:flex-row items-center gap-8">
@@ -141,8 +160,8 @@ export default function TestimoniSection() {
                       <Star
                         key={i}
                         className={`w-5 h-5 ${i < Math.floor(testimonials[currentIndex].rating)
-                            ? "fill-[#FF9E6B] text-[#FF9E6B]"
-                            : "text-gray-300"
+                          ? "fill-[#FF9E6B] text-[#FF9E6B]"
+                          : "text-gray-300"
                           }`}
                       />
                     ))}
@@ -152,7 +171,7 @@ export default function TestimoniSection() {
                   </div>
 
                   <p className="text-lg md:text-xl text-[#6B6B6B] leading-relaxed mb-6 italic">
-                    “{testimonials[currentIndex].text}”
+                    &ldquo;{testimonials[currentIndex].text}&rdquo;
                   </p>
 
                   <div>

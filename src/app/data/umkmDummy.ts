@@ -270,7 +270,7 @@ export const umkmDummy: UMKM[] = [
     address: 'Jl. Kemang Timur No.46, RT.10/RW.4, Bangka, Kec. Mampang Prpt., Kota Jakarta Selatan, Daerah Khusus Ibukota Jakarta',
     lat: -6.237621174303672,
     lng: 106.85048455278726,
-    category: 'Kedai Kopi',
+    category: 'Minuman',
     description: 'MYS-BAR COFFE adalah tempat nongkrong modern yang menyajikan kopi dan minuman kekinian dengan harga terjangkau. Suasana yang nyaman dan estetis sangat cocok untuk bersantai atau bekerja.',
     gallery: [
       'https://syd.cloud.appwrite.io/v1/storage/buckets/umkm-images/files/umkm-mysbar-coffe/view?project=6861b5e20027ba386475&mode=admin',
